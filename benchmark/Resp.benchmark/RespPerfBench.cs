@@ -391,7 +391,7 @@ namespace Resp.benchmark
                 byte[] buf = rg.GetRequest(out int len);
                 client.Send(buf, len, (opType == OpType.MSET || opType == OpType.MPFADD) ? 1 : rg.BatchCount);
                 client.CompletePendingRequests();
-                Console.WriteLine("{0},{1},{2}", threadId, numReqs, Stopwatch.GetTimestamp());
+                // timestap printing Console.WriteLine("{0},{1},{2}", threadId, numReqs, Stopwatch.GetTimestamp());
                 numReqs++;
                 if (numReqs == maxReqs) break;
             }
