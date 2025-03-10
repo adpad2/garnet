@@ -385,6 +385,7 @@ namespace Resp.benchmark
             waiter.Wait();
 
             Stopwatch sw = new();
+            Console.WriteLine("Before stopwatch starts: {0}", Stopwatch.GetTimestamp());
             sw.Start();
             while (!done)
             {
@@ -395,8 +396,10 @@ namespace Resp.benchmark
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
+            Console.WriteLine("After stopwatch stops: {0}", Stopwatch.GetTimestamp());
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
+            Console.WriteLine("After num ops is accumulated: {0}", Stopwatch.GetTimestamp());
         }
 
         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
