@@ -329,7 +329,7 @@ namespace Resp.benchmark
                 workers[idx] = opts.Client switch
                 {
 
-                    ClientType.LightClient => new Thread(() => LightOperateThreadRunner(OpsPerThread, opType, rg)),
+                    ClientType.LightClient => new Thread(() => LightOperateThreadRunner(OpsPerThread, opType, rg, idx)),
                     ClientType.GarnetClientSession => new Thread(() => GarnetClientSessionOperateThreadRunner(OpsPerThread, opType, rg)),
                     ClientType.SERedis => new Thread(() => SERedisOperateThreadRunner(OpsPerThread, opType, rg)),
                     _ => throw new Exception($"ClientType {opts.Client} not supported"),
@@ -371,7 +371,7 @@ namespace Resp.benchmark
             return rg;
         }
 
-        private unsafe void LightOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
+        private unsafe void LightOperateThreadRunner(int NumOps, OpType opType, ReqGen rg, int threadId)
         {
             var lighClientOnResponseDelegate = new LightClient.OnResponseDelegateUnsafe(ReqGen.OnResponse);
             using ClientBase client = new LightClient(new IPEndPoint(IPAddress.Parse(opts.Address), opts.Port), (int)opType, lighClientOnResponseDelegate, rg.GetBufferSize(), opts.EnableTLS ? BenchUtils.GetTlsOptions(opts.TlsHost, opts.CertFileName, opts.CertPassword) : null);
@@ -385,7 +385,7 @@ namespace Resp.benchmark
             waiter.Wait();
 
             Stopwatch sw = new();
-            Console.WriteLine("Before stopwatch starts: {0}", Stopwatch.GetTimestamp());
+            Console.WriteLine("Thread {1}, Before stopwatch starts: {0}", Stopwatch.GetTimestamp(), threadId);
             sw.Start();
             while (!done)
             {
@@ -396,10 +396,10 @@ namespace Resp.benchmark
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
-            Console.WriteLine("After stopwatch stops: {0}", Stopwatch.GetTimestamp());
+            Console.WriteLine("Thread {1}, After stopwatch stops: {0}", Stopwatch.GetTimestamp(), threadId);
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
-            Console.WriteLine("After num ops is accumulated: {0}", Stopwatch.GetTimestamp());
+            Console.WriteLine("Thread {1}, After nu ops accumulated: {0}", Stopwatch.GetTimestamp(), threadId);
         }
 
         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
