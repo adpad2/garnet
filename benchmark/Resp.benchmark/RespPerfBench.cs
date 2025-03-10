@@ -329,7 +329,7 @@ namespace Resp.benchmark
                 workers[idx] = opts.Client switch
                 {
 
-                    ClientType.LightClient => new Thread(() => LightOperateThreadRunner(OpsPerThread, opType, rg, idx)),
+                    ClientType.LightClient => new Thread(() => LightOperateThreadRunner(OpsPerThread, opType, rg, x)),
                     ClientType.GarnetClientSession => new Thread(() => GarnetClientSessionOperateThreadRunner(OpsPerThread, opType, rg)),
                     ClientType.SERedis => new Thread(() => SERedisOperateThreadRunner(OpsPerThread, opType, rg)),
                     _ => throw new Exception($"ClientType {opts.Client} not supported"),
