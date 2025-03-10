@@ -385,21 +385,19 @@ namespace Resp.benchmark
             waiter.Wait();
 
             Stopwatch sw = new();
-            Console.WriteLine("Thread {1}, Before stopwatch starts: {0}", Stopwatch.GetTimestamp(), threadId);
             sw.Start();
             while (!done)
             {
                 byte[] buf = rg.GetRequest(out int len);
                 client.Send(buf, len, (opType == OpType.MSET || opType == OpType.MPFADD) ? 1 : rg.BatchCount);
                 client.CompletePendingRequests();
+                Console.WriteLine("{0},{1},{2}", threadId, numReqs, Stopwatch.GetTimestamp());
                 numReqs++;
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
-            Console.WriteLine("Thread {1}, After stopwatch stops: {0}", Stopwatch.GetTimestamp(), threadId);
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
-            Console.WriteLine("Thread {1}, After nu ops accumulated: {0}", Stopwatch.GetTimestamp(), threadId);
         }
 
         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
