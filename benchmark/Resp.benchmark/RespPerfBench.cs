@@ -274,7 +274,7 @@ namespace Resp.benchmark
                 GC.WaitForFullGCComplete();
                 LightOperate(opType, TotalOps, BatchSize, numThread, 0, runTime, rg, randomGen, randomServe);
             }
-            File.WriteAllText('appdump_log.txt', output);
+            File.WriteAllText("appdump_log.txt", output);
             run_rg = null;
         }
 
