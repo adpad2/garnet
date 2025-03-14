@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 using Garnet.client;
 using Garnet.common;
 using StackExchange.Redis;
@@ -33,6 +34,7 @@ namespace Resp.benchmark
 
         volatile bool done = false;
         long total_ops_done = 0;
+        volatile string output = "";
 
 
         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
@@ -272,6 +274,7 @@ namespace Resp.benchmark
                 GC.WaitForFullGCComplete();
                 LightOperate(opType, TotalOps, BatchSize, numThread, 0, runTime, rg, randomGen, randomServe);
             }
+            File.WriteAllText('appdump_log.txt', output);
             run_rg = null;
         }
 
@@ -386,21 +389,21 @@ namespace Resp.benchmark
 
             Stopwatch sw = new();
             sw.Start();
-            Console.WriteLine("START_STOPWATCH,{0},,{1}", threadId, Stopwatch.GetTimestamp());
+            output += $"\nSTART_STOPWATCH,{threadId},,{Stopwatch.GetTimestamp()}";
             while (!done)
             {
                 byte[] buf = rg.GetRequest(out int len);
                 client.Send(buf, len, (opType == OpType.MSET || opType == OpType.MPFADD) ? 1 : rg.BatchCount);
                 client.CompletePendingRequests();
-                Console.WriteLine("FINISH_BATCH,{0},{1},{2}", threadId, numReqs, Stopwatch.GetTimestamp());
+                output += $"\nFINISH_BATCH,{threadId},{numReqs},{Stopwatch.GetTimestamp()}";
                 numReqs++;
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
-            Console.WriteLine("STOP_STOPWATCH,{0},,{1}", threadId, Stopwatch.GetTimestamp());
+            output += $"\nSTOP_STOPWATCH,{threadId},,{Stopwatch.GetTimestamp()}";
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
-            Console.WriteLine("ACCUMULATE_OPS,{0},,{1}", threadId, Stopwatch.GetTimestamp());
+            output += $"\nACCUMULATE_OPS,{threadId},,{Stopwatch.GetTimestamp()}";
         }
 
         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
