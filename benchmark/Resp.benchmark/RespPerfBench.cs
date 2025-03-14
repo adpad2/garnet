@@ -386,21 +386,21 @@ namespace Resp.benchmark
 
             Stopwatch sw = new();
             sw.Start();
-            Console.WriteLine("START_STOPWATCH,{0},,{1}", threadId, Stopwatch.GetTimestamp());
+            //Console.WriteLine("START_STOPWATCH,{0},,{1}", threadId, Stopwatch.GetTimestamp());
             while (!done)
             {
                 byte[] buf = rg.GetRequest(out int len);
                 client.Send(buf, len, (opType == OpType.MSET || opType == OpType.MPFADD) ? 1 : rg.BatchCount);
                 client.CompletePendingRequests();
-                Console.WriteLine("FINISH_BATCH,{0},{1},{2}", threadId, numReqs, Stopwatch.GetTimestamp());
+                //Console.WriteLine("FINISH_BATCH,{0},{1},{2}", threadId, numReqs, Stopwatch.GetTimestamp());
                 numReqs++;
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
-            Console.WriteLine("STOP_STOPWATCH,{0},,{1}", threadId, Stopwatch.GetTimestamp());
+            //Console.WriteLine("STOP_STOPWATCH,{0},,{1}", threadId, Stopwatch.GetTimestamp());
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
-            Console.WriteLine("ACCUMULATE_OPS,{0},,{1}", threadId, Stopwatch.GetTimestamp());
+            //Console.WriteLine("ACCUMULATE_OPS,{0},,{1}", threadId, Stopwatch.GetTimestamp());
         }
 
         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
