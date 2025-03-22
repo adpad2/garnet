@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -34,6 +35,9 @@ namespace Resp.benchmark
         volatile bool done = false;
         long total_ops_done = 0;
 
+        string appdump_mode = "file";
+        if (appdump_mode == "file")
+            StreamWriter writer = new StreamWriter('appdump.txt', append: true);
 
         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
         {
@@ -386,21 +390,41 @@ namespace Resp.benchmark
 
             Stopwatch sw = new();
             sw.Start();
-            Console.WriteLine($"\nSTART_STOPWATCH,{threadId},,{Stopwatch.GetTimestamp()}");
+            
+            if (appdump_mode == "console") {
+                Console.WriteLine($"\n{Stopwatch.GetTimestamp()},START_STOPWATCH,{threadId},");
+            } else if (appdump_mode == "file") {
+                writer.WriteLine($"\n{Stopwatch.GetTimestamp()},START_STOPWATCH,{threadId},");
+            }
+            
             while (!done)
             {
                 byte[] buf = rg.GetRequest(out int len);
                 client.Send(buf, len, (opType == OpType.MSET || opType == OpType.MPFADD) ? 1 : rg.BatchCount);
                 client.CompletePendingRequests();
-                Console.WriteLine($"\nFINISH_BATCH,{threadId},{numReqs},{Stopwatch.GetTimestamp()}");
+                if (appdump_mode == "console") {
+                    Console.WriteLine($"\n{Stopwatch.GetTimestamp()},FINISH_BATCH,{threadId},{numReqs}");
+                } else if (appdump_mode == "file") {
+                    writer.WriteLine($"\n{Stopwatch.GetTimestamp()},FINISH_BATCH,{threadId},{numReqs}");
+                }
                 numReqs++;
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
             Console.WriteLine($"\nSTOP_STOPWATCH,{threadId},,{Stopwatch.GetTimestamp()}");
+            if (appdump_mode == "console") {
+                Console.WriteLine($"\n{Stopwatch.GetTimestamp()},STOP_STOPWATCH,{threadId},");
+            } else if (appdump_mode == "file") {
+                writer.WriteLine($"\n{Stopwatch.GetTimestamp()},STOP_STOPWATCH,{threadId},");
+            }
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
-            Console.WriteLine($"\nACCUMULATE_OPS,{threadId},,{Stopwatch.GetTimestamp()}");
+            
+            if (appdump_mode == "console") {
+                Console.WriteLine($"\n{Stopwatch.GetTimestamp()},ACCUMULATE_OPS,{threadId},");
+            } else if (appdump_mode == "file") {
+                writer.WriteLine($"\n{Stopwatch.GetTimestamp()},ACCUMULATE_OPS,{threadId},");
+            }
         }
 
         private void GarnetClientSessionOperateThreadRunner(int NumOps, OpType opType, ReqGen rg)
