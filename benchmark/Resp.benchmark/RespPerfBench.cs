@@ -36,7 +36,7 @@ namespace Resp.benchmark
         long total_ops_done = 0;
 
         string appdump_mode = "file";
-        StreamWriter writer = new StreamWriter('appdump.txt', append: true);
+        StreamWriter writer = new StreamWriter("appdump.txt", append: true);
 
         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
         {
