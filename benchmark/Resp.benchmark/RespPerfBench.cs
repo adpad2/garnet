@@ -358,7 +358,6 @@ namespace Resp.benchmark
                 worker.Join();
 
             swatch.Stop();
-            writer.Close();
 
             double seconds = swatch.ElapsedMilliseconds / 1000.0;
             double opsPerSecond = total_ops_done / seconds;
