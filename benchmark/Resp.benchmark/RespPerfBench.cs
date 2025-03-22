@@ -36,13 +36,15 @@ namespace Resp.benchmark
         long total_ops_done = 0;
 
         string appdump_mode = "file";
-        static StreamWriter writer = new StreamWriter("/mnt/ramdisk/appdump.txt", append: true);
+        static StreamWriter writer;
         static readonly object fileLock = new object();
 
         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
         {
             this.opts = opts;
             this.Start = Start;
+            if (appdump_mode == "file")
+                writer = new StreamWriter("/mnt/ramdisk/appdump.txt", append: true);
             if (opts.Client == ClientType.SERedis)
                 this.redis = redis;
         }
