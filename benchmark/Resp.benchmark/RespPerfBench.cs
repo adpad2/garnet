@@ -36,7 +36,8 @@ namespace Resp.benchmark
         long total_ops_done = 0;
 
         string appdump_mode = "file";
-        StreamWriter writer = new StreamWriter("/mnt/ramdisk/appdump.txt", append: true);
+        static StreamWriter writer = new StreamWriter("/mnt/ramdisk/appdump.txt", append: true);
+        static readonly object fileLock = new object();
 
         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
         {
@@ -357,6 +358,7 @@ namespace Resp.benchmark
                 worker.Join();
 
             swatch.Stop();
+            writer.Close();
 
             double seconds = swatch.ElapsedMilliseconds / 1000.0;
             double opsPerSecond = total_ops_done / seconds;
@@ -393,7 +395,10 @@ namespace Resp.benchmark
             if (appdump_mode == "console") {
                 Console.WriteLine($"\n{Stopwatch.GetTimestamp()},START_STOPWATCH,{threadId},");
             } else if (appdump_mode == "file") {
-                writer.WriteLine($"\n{Stopwatch.GetTimestamp()},START_STOPWATCH,{threadId},");
+                lock (fileLock) {
+                    writer.WriteLine($"\n{Stopwatch.GetTimestamp()},START_STOPWATCH,{threadId},");
+                    writer.Flush();
+                }
             }
             
             while (!done)
@@ -404,17 +409,23 @@ namespace Resp.benchmark
                 if (appdump_mode == "console") {
                     Console.WriteLine($"\n{Stopwatch.GetTimestamp()},FINISH_BATCH,{threadId},{numReqs}");
                 } else if (appdump_mode == "file") {
-                    writer.WriteLine($"\n{Stopwatch.GetTimestamp()},FINISH_BATCH,{threadId},{numReqs}");
+                    lock (fileLock) {
+                        writer.WriteLine($"\n{Stopwatch.GetTimestamp()},FINISH_BATCH,{threadId},{numReqs}");
+                        writer.Flush();
+                    }
                 }
                 numReqs++;
                 if (numReqs == maxReqs) break;
             }
             sw.Stop();
-            Console.WriteLine($"\nSTOP_STOPWATCH,{threadId},,{Stopwatch.GetTimestamp()}");
+            
             if (appdump_mode == "console") {
                 Console.WriteLine($"\n{Stopwatch.GetTimestamp()},STOP_STOPWATCH,{threadId},");
             } else if (appdump_mode == "file") {
-                writer.WriteLine($"\n{Stopwatch.GetTimestamp()},STOP_STOPWATCH,{threadId},");
+                lock (fileLock) {
+                    writer.WriteLine($"\n{Stopwatch.GetTimestamp()},STOP_STOPWATCH,{threadId},");
+                    writer.Flush();
+                }
             }
 
             Interlocked.Add(ref total_ops_done, numReqs * rg.BatchCount);
@@ -422,7 +433,10 @@ namespace Resp.benchmark
             if (appdump_mode == "console") {
                 Console.WriteLine($"\n{Stopwatch.GetTimestamp()},ACCUMULATE_OPS,{threadId},");
             } else if (appdump_mode == "file") {
-                writer.WriteLine($"\n{Stopwatch.GetTimestamp()},ACCUMULATE_OPS,{threadId},");
+                lock (fileLock) {
+                    writer.WriteLine($"\n{Stopwatch.GetTimestamp()},ACCUMULATE_OPS,{threadId},");
+                    writer.Flush();
+                }
             }
         }
 
