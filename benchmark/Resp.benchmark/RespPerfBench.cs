@@ -398,7 +398,7 @@ namespace Resp.benchmark
             } else if (appdump_mode == "file") {
                 lock (fileLock) {
                     writer.WriteLine($"\n{Stopwatch.GetTimestamp()},START_STOPWATCH,{threadId},");
-                    writer.Flush();
+                    //writer.Flush();
                 }
             }
             
@@ -412,7 +412,7 @@ namespace Resp.benchmark
                 } else if (appdump_mode == "file") {
                     lock (fileLock) {
                         writer.WriteLine($"\n{Stopwatch.GetTimestamp()},FINISH_BATCH,{threadId},{numReqs}");
-                        writer.Flush();
+                        //writer.Flush();
                     }
                 }
                 numReqs++;
@@ -425,7 +425,7 @@ namespace Resp.benchmark
             } else if (appdump_mode == "file") {
                 lock (fileLock) {
                     writer.WriteLine($"\n{Stopwatch.GetTimestamp()},STOP_STOPWATCH,{threadId},");
-                    writer.Flush();
+                    //writer.Flush();
                 }
             }
 
@@ -436,7 +436,7 @@ namespace Resp.benchmark
             } else if (appdump_mode == "file") {
                 lock (fileLock) {
                     writer.WriteLine($"\n{Stopwatch.GetTimestamp()},ACCUMULATE_OPS,{threadId},");
-                    writer.Flush();
+                    //writer.Flush();
                 }
             }
         }
