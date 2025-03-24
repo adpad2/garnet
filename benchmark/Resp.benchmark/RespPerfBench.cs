@@ -25,7 +25,7 @@ namespace Resp.benchmark
         readonly int Start;
         readonly ManualResetEventSlim waiter = new();
         readonly Options opts;
-        readonly IConnectionMultiplexer redis;
+        // readonly IConnectionMultiplexer redis;
 
         KeyValuePair<RedisKey, RedisValue>[] database;
 
@@ -388,7 +388,7 @@ namespace Resp.benchmark
             Stopwatch sw = new();
             sw.Start();
             
-            logger.Log(Stopwatch.GetTimestamp(), "START_STOPWATCH", new List<int> {threadId.ToString()});
+            logger.Log(Stopwatch.GetTimestamp(), "START_STOPWATCH", new List<string> {threadId.ToString()});
             
             while (!done)
             {
