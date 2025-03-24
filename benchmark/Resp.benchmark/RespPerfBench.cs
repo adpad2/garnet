@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Garnet.client;
 using Garnet.common;
 using StackExchange.Redis;
+using Appdump
 
 namespace Resp.benchmark
 {
@@ -38,6 +39,7 @@ namespace Resp.benchmark
         string appdump_mode = "file";
         static StreamWriter writer;
         static readonly object fileLock = new object();
+        static AppLogger temp;
 
         public RespPerfBench(Options opts, int Start, IConnectionMultiplexer redis)
         {
