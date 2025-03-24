@@ -25,7 +25,7 @@ namespace Resp.benchmark
         readonly int Start;
         readonly ManualResetEventSlim waiter = new();
         readonly Options opts;
-        // readonly IConnectionMultiplexer redis;
+        readonly IConnectionMultiplexer redis;
 
         KeyValuePair<RedisKey, RedisValue>[] database;
 
