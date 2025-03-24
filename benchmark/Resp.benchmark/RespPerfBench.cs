@@ -42,7 +42,7 @@ namespace Resp.benchmark
         {
             this.opts = opts;
             this.Start = Start;
-            logger = new AppLogger('curr_log.txt');
+            logger = new AppLogger("curr_log.txt");
         }
 
         /// <summary>
