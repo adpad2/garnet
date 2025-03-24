@@ -42,6 +42,8 @@ namespace Resp.benchmark
             this.opts = opts;
             this.Start = Start;
             logger = new AppLogger("curr_log.txt");
+            if (opts.Client == ClientType.SERedis)
+                this.redis = redis;
         }
 
         /// <summary>
