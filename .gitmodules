@@ -1,0 +1,3 @@
+[submodule "AppDump"]
+	path = AppDump
+	url = https://github.com/adpad2/AppDump
